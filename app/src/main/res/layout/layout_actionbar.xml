@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="60dp">
+
+    <ImageButton
+        android:id="@+id/detailNavi"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="10dp"
+        android:background="@drawable/ic_detail_navi" />
+
+    <TextView
+        android:id="@+id/evDetailTitle"
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:layout_centerInParent="true"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_toLeftOf="@+id/customCancel"
+        android:layout_toRightOf="@+id/detailNavi"
+        android:gravity="center"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:text="테스트샵"
+        android:textColor="@color/bg_text_color"
+        android:textSize="24sp"
+        android:textStyle="bold" />
+
+    <ImageButton
+        android:id="@+id/customCancel"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="10dp"
+        android:background="@drawable/ic_back"/>
+</RelativeLayout>
