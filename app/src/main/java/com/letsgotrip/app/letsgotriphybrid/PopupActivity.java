@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.os.Message;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
@@ -53,6 +54,7 @@ public class PopupActivity extends AppCompatActivity {
         atitle = intent.getExtras().getString("title");
 //        this.s_type = intent.getExtras().getString("s_type");
 //        this.s_name = intent.getExtras().getString("s_name");
+        Log.d("111111","111111");
 
         android.support.v7.app.ActionBar actionBar = getSupportActionBar();
 
