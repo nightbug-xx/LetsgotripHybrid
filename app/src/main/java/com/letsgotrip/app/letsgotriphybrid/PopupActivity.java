@@ -41,19 +41,23 @@ public class PopupActivity extends AppCompatActivity {
 
     private String urlStr = "";
     private String atitle = "";
+    private boolean navi = false;
 
     double latitude;
     double longitude;
 
     private WebViewInterface mWebViewInterface;
 
+    public static Activity p2activity;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Intent intent = getIntent();
         urlStr = intent.getExtras().getString("url");
         atitle = intent.getExtras().getString("title");
-//        this.s_type = intent.getExtras().getString("s_type");
-//        this.s_name = intent.getExtras().getString("s_name");
+        navi = intent.getExtras().getBoolean("navi");
+
+        p2activity = PopupActivity.this;
 
         android.support.v7.app.ActionBar actionBar = getSupportActionBar();
 
@@ -74,22 +78,24 @@ public class PopupActivity extends AppCompatActivity {
         // 액션바에 백그라운드 색상을 아래처럼 입힐 수 있습니다.
         actionBar.setBackgroundDrawable(new ColorDrawable(Color.argb(255,051,051,051)));
 
-//        showNotiPannel = false;
         ImageButton btn = (ImageButton) findViewById(R.id.detailNavi);
-
-        btn.setOnClickListener(
-                new Button.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
+        if(navi){
+            btn.setOnClickListener(
+                    new Button.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
 //                        Intent intent = new Intent(EventDetailActivity.this, DetailNaviActivity.class);
 //                        intent.putExtra("s_name",s_name);
 //                        intent.putExtra("sidx",sidx);
 //                        intent.putExtra("cidx",cidx);
 //                        intent.putExtra("s_type",s_type);
 //                        startActivity(intent);
+                        }
                     }
-                }
-        );
+            );
+        }else{
+            btn.setVisibility(View.GONE);
+        }
 
         ImageButton btn2 = (ImageButton) findViewById(R.id.customCancel);
 
@@ -216,6 +222,22 @@ public class PopupActivity extends AppCompatActivity {
             return "{\"lat\":"+String.valueOf(latitude)+",\"lng\":"+String.valueOf(longitude)+"}";
         }
 
+        /**
+         * 자바스크립트에서 현재 액티비티를 종료합니다.
+         */
+        @JavascriptInterface
+        public void actClose () { // Show toast for a short time
+            finish();
+        }
+
+        /**
+         * 자바스크립트에서 현재 액티비티를 종료합니다.
+         */
+        @JavascriptInterface
+        public void actPreloadClose () { // Show toast for a short time
+            ((MainActivity)(MainActivity.mContext)).refesh();
+            finish();
+        }
 
     }
 

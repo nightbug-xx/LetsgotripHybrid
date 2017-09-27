@@ -8,23 +8,17 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.net.Uri;
 import android.os.Build;
-import android.os.Message;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Message;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.Window;
-import android.webkit.GeolocationPermissions;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.Toast;
 
 import static android.view.View.SYSTEM_UI_FLAG_FULLSCREEN;
@@ -35,10 +29,10 @@ public class MainActivity extends AppCompatActivity {
     private int	uiOption;
 
     private static final int MY_PERMISSION_REQUEST_LOCATION = 0;
-    private WebView webView;
+    public WebView webView;
 
-//    private String urlStr = "http://app.letsgotrip.com/";
-    private String urlStr = "http://192.168.0.14:8080/";
+    public String urlStr = "http://app.letsgotrip.com/";
+//    public static String urlStr = "http://192.168.0.14:8080/";
 
     // 사용자 위치 수신기
     private LocationManager locationManager;
@@ -49,8 +43,11 @@ public class MainActivity extends AppCompatActivity {
 
     private WebViewInterface mWebViewInterface;
 
+    public static Context mContext;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        mContext = this;
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
@@ -256,6 +253,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
+    }
+
+    public void refesh(){
+        this.finish();
+        Intent intent = new Intent(MainActivity.this, MainActivity.class);
+        startActivity(intent);
     }
 
 }
