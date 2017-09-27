@@ -35,10 +35,10 @@ public class MainActivity extends AppCompatActivity {
     private int	uiOption;
 
     private static final int MY_PERMISSION_REQUEST_LOCATION = 0;
-    private WebView webView;
+    public WebView webView;
 
-//    private String urlStr = "http://app.letsgotrip.com/";
-    private String urlStr = "http://192.168.0.14:8080/";
+//    public String urlStr = "http://app.letsgotrip.com/";
+    public static String urlStr = "http://192.168.0.14:8080/";
 
     // 사용자 위치 수신기
     private LocationManager locationManager;
@@ -49,8 +49,11 @@ public class MainActivity extends AppCompatActivity {
 
     private WebViewInterface mWebViewInterface;
 
+    public static Context mContext;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        mContext = this;
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
@@ -256,6 +259,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
+    }
+
+    public void refesh(){
+        this.finish();
+        Intent intent = new Intent(MainActivity.this, MainActivity.class);
+        startActivity(intent);
     }
 
 }
