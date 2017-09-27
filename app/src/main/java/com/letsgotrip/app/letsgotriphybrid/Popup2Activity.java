@@ -1,25 +1,16 @@
 package com.letsgotrip.app.letsgotriphybrid;
 
-import android.Manifest;
-import android.app.ActionBar;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
-import android.os.Bundle;
-import android.os.Message;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.Window;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
@@ -33,7 +24,7 @@ import android.widget.Toast;
 import static android.view.View.SYSTEM_UI_FLAG_FULLSCREEN;
 import static android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
 
-public class PopupActivity extends AppCompatActivity {
+public class Popup2Activity extends AppCompatActivity {
     private View decorView;
     private int	uiOption;
 
@@ -104,7 +95,10 @@ public class PopupActivity extends AppCompatActivity {
 
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_popup);
+        setContentView(R.layout.activity_popup2);
+
+
+
 
         decorView = getWindow().getDecorView();
         uiOption = getWindow().getDecorView().getSystemUiVisibility();
@@ -117,7 +111,7 @@ public class PopupActivity extends AppCompatActivity {
 
         decorView.setSystemUiVisibility( uiOption );
 
-        webView = (WebView)findViewById(R.id.popupWebView);
+        webView = (WebView)findViewById(R.id.popup2WebView);
 
         webView.clearHistory();
         webView.clearCache(true);
@@ -129,36 +123,34 @@ public class PopupActivity extends AppCompatActivity {
 
         webView.setWebChromeClient(new WebChromeClient() {
             public void onProgressChanged(WebView view, int progress) {
-//                Toast.makeText(MainActivity.this, "노딩중 : "+String.valueOf(progress), Toast.LENGTH_SHORT).show();
+//                Toast.makeText(PopupActivity.this, "노딩중 : "+String.valueOf(progress), Toast.LENGTH_SHORT).show();
 //                super.onProgressChanged(view, progress);
 //                activity.setProgress(progress * 1000);
             }
 
-            @Override
-            public boolean onCreateWindow(WebView view, boolean isDialog,boolean isUserGesture,Message resultMsg) {
-                WebView.HitTestResult result = view.getHitTestResult();
-                String url = result.getExtra();
-
-                Intent intent=new Intent(PopupActivity.this,Popup2Activity.class);
-                if(url.contains("/member/join.do")){;
-                    intent.putExtra("navi",false);
-                    intent.putExtra("title","회원가입");
-                }
-
-                intent.putExtra("url",url);
-                startActivity(intent);
-
-                return  false;
-            }
+//            @Override
+//            public boolean onCreateWindow(WebView view, boolean isDialog,boolean isUserGesture,Message resultMsg) {
+//                WebView.HitTestResult result = view.getHitTestResult();
+//                String url = result.getExtra();
+//
+//                Intent intent=new Intent(MainActivity.this,PopupActivity.class);
+//                if(url.contains("/member/login.do")){;
+//                    intent.putExtra("navi",false);
+//                    intent.putExtra("title","로그인");
+//                }
+//
+//                intent.putExtra("url",url);
+//                startActivity(intent);
+//
+//                return  false;
+//            }
         });
 
 
-        mWebViewInterface = new WebViewInterface(PopupActivity.this, webView); //JavascriptInterface 객체화
+        mWebViewInterface = new Popup2Activity.WebViewInterface(Popup2Activity.this, webView); //JavascriptInterface 객체화
         webView.addJavascriptInterface(mWebViewInterface, "Android"); //웹뷰에 JavascriptInterface를 연결
 
         webView.loadUrl(urlStr);
-
-
     }
 
 
@@ -218,5 +210,4 @@ public class PopupActivity extends AppCompatActivity {
 
 
     }
-
 }

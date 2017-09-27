@@ -28,13 +28,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".MainActivity"
-            android:theme="@style/Theme.AppCompat.NoActionBar"
+        <activity
+            android:name=".MainActivity"
             android:configChanges="keyboardHidden|orientation"
-            android:screenOrientation="portrait" />
-
-        <activity android:name=".PopupActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
+        <activity
+            android:name=".PopupActivity"
             android:configChanges="keyboardHidden|orientation"
             android:screenOrientation="portrait">
             <meta-data
@@ -42,6 +42,7 @@
                 android:value=".MainActivity" />
         </activity>
         />
+        <activity android:name=".Popup2Activity"></activity>
     </application>
 
 </manifest>
