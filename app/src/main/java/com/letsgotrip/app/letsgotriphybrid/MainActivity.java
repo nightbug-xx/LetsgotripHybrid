@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
     public WebView webView;
 
     public String urlStr = "http://app.letsgotrip.com/";
-//    public static String urlStr = "http://192.168.0.14:8080/";
+//    public static String urlStr = "http://121.128.140.78:8080/";
 
     // 사용자 위치 수신기
     private LocationManager locationManager;
@@ -97,9 +97,15 @@ public class MainActivity extends AppCompatActivity {
                 String url = result.getExtra();
 
                 Intent intent=new Intent(MainActivity.this,PopupActivity.class);
-                if(url.contains("/member/login.do")){;
+                if(url.contains("/member/login.do")){
                     intent.putExtra("navi",false);
                     intent.putExtra("title","로그인");
+                }else if(url.contains("/navi.do")){
+                    intent.putExtra("navi",false);
+                    intent.putExtra("title","길찾기");
+                }else if(url.contains("/eventDetail.do")){
+                    intent.putExtra("navi",true);
+                    intent.putExtra("title","상세보기");
                 }
 
                 intent.putExtra("url",url);
