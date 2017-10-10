@@ -9,6 +9,7 @@
     <WebView
         android:id="@+id/mainWebView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"></WebView>
+        android:layout_height="match_parent"
+        android:focusable="true"></WebView>
 
 </android.support.constraint.ConstraintLayout>
