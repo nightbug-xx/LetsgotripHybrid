@@ -2,7 +2,6 @@ package com.letsgotrip.app.letsgotriphybrid;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -92,31 +91,6 @@ public class IntroActivity extends Activity {
         }
 
         return currentLocation;
-    }
-
-    /**
-     * GPS 를 받기 위한 매니저와 리스너 설정
-     */
-    public void settingGPS() {
-        // Acquire a reference to the system Location Manager
-        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-
-        locationListener = new LocationListener() {
-            public void onLocationChanged(Location location) {
-                latitude = location.getLatitude();
-                longitude = location.getLongitude();
-                // TODO 위도, 경도로 하고 싶은 것
-            }
-
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-            }
-
-            public void onProviderEnabled(String provider) {
-            }
-
-            public void onProviderDisabled(String provider) {
-            }
-        };
     }
 
     /**
