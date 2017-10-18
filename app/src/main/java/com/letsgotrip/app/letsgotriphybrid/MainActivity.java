@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
     public WebView webView;
 
     public String urlStr = "http://app.letsgotrip.com/";
-//    public static String urlStr = "http://121.128.140.78:8080/";
+//    public static String urlStr = "http://121.128.165.42:8080/";
 
     // 사용자 위치 수신기
     private LocationManager locationManager;
@@ -136,7 +136,10 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 2000);
         }
         else {
+            if (locationManager.getAllProviders().contains(LocationManager.NETWORK_PROVIDER))
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+
+            if (locationManager.getAllProviders().contains(LocationManager.GPS_PROVIDER))
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
 
             // 수동으로 위치 구하기
