@@ -79,7 +79,7 @@ public class IntroActivity extends Activity {
     /**
      * 사용자의 위치를 수신
      */
-    public Location getMyLocation() {
+    public void getMyLocation() {
         Location currentLocation = null;
         // Register the listener with the Location Manager to receive location updates
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -89,8 +89,6 @@ public class IntroActivity extends Activity {
         else {
             handler.postDelayed(runnable, 100);
         }
-
-        return currentLocation;
     }
 
     /**
@@ -99,16 +97,13 @@ public class IntroActivity extends Activity {
      * @param permissions
      * @param grantResults
      */
-    boolean canReadLocation = false;
     public void onRequestPermissionsResult(int requestCode,String[] permissions,int[] grantResults) {
         if (requestCode == 2000) {
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 // success!
                 handler.postDelayed(runnable, 100);
-                canReadLocation = true;
             } else {
-// Permission was denied or request was cancelled
-                canReadLocation = false;
+
             }
         }
     }
