@@ -1,7 +1,6 @@
 package com.letsgotrip.app.letsgotriphybrid;
 
 import android.Manifest;
-import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -16,10 +15,8 @@ import android.os.Bundle;
 import android.os.Message;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.Window;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
@@ -45,6 +42,10 @@ public class PopupActivity extends AppCompatActivity {
 
     double latitude;
     double longitude;
+
+    // 사용자 위치 수신기
+    private LocationManager locationManager;
+    private LocationListener locationListener;
 
     private WebViewInterface mWebViewInterface;
 
@@ -111,6 +112,17 @@ public class PopupActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_popup);
+
+        settingGPS();
+
+        // 사용자의 현재 위치 //
+        Location userLocation = getMyLocation();
+
+        if( userLocation != null ) {
+            // TODO 위치를 처음 얻어왔을 때 하고 싶은 것
+            latitude = userLocation.getLatitude();
+            longitude = userLocation.getLongitude();
+        }
 
         decorView = getWindow().getDecorView();
         uiOption = getWindow().getDecorView().getSystemUiVisibility();
@@ -239,6 +251,91 @@ public class PopupActivity extends AppCompatActivity {
             finish();
         }
 
+    }
+
+    /**
+     * GPS 를 받기 위한 매니저와 리스너 설정
+     */
+    public void settingGPS() {
+        // Acquire a reference to the system Location Manager
+        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+
+        locationListener = new LocationListener() {
+            public void onLocationChanged(Location location) {
+                latitude = location.getLatitude();
+                longitude = location.getLongitude();
+                // TODO 위도, 경도로 하고 싶은 것
+            }
+
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+            }
+
+            public void onProviderEnabled(String provider) {
+            }
+
+            public void onProviderDisabled(String provider) {
+            }
+        };
+    }
+
+    /**
+     * GPS 권한 응답에 따른 처리
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
+    boolean canReadLocation = false;
+    public void onRequestPermissionsResult(int requestCode,String[] permissions,int[] grantResults) {
+        if (requestCode == 2000) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+// success!
+                Location userLocation = getMyLocation();
+                if( userLocation != null ) {
+                    double latitude = userLocation.getLatitude();
+                    double longitude = userLocation.getLongitude();
+                }
+                canReadLocation = true;
+            } else {
+// Permission was denied or request was cancelled
+                canReadLocation = false;
+            }
+        }
+    }
+
+
+
+    /**
+     * 사용자의 위치를 수신
+     */
+    public Location getMyLocation() {
+        Location currentLocation = null;
+        // Register the listener with the Location Manager to receive location updates
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // 사용자 권한 요청
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 2000);
+        }
+        else {
+            if (locationManager.getAllProviders().contains(LocationManager.NETWORK_PROVIDER))
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+
+            if (locationManager.getAllProviders().contains(LocationManager.GPS_PROVIDER))
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+
+            // 수동으로 위치 구하기
+            String locationProvider = LocationManager.GPS_PROVIDER;
+            currentLocation = locationManager.getLastKnownLocation(locationProvider);
+            if (currentLocation != null) {
+                double lng = currentLocation.getLongitude();
+                double lat = currentLocation.getLatitude();
+            }else{
+                String networkProvider = LocationManager.NETWORK_PROVIDER;
+                currentLocation = locationManager.getLastKnownLocation(networkProvider);
+                double lng = currentLocation.getLongitude();
+                double lat = currentLocation.getLatitude();
+            }
+        }
+
+        return currentLocation;
     }
 
 }

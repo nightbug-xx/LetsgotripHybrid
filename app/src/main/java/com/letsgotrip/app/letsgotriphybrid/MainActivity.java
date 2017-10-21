@@ -19,6 +19,7 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Toast;
 
 import static android.view.View.SYSTEM_UI_FLAG_FULLSCREEN;
@@ -83,6 +84,13 @@ public class MainActivity extends AppCompatActivity {
         webView.getSettings().setJavaScriptEnabled(true); // 자바스크립트 사용을 허용한다.
 //        webView.setWebViewClient(new DraptWebViewClient());  // 새로운 창을 띄우지 않고 내부에서 웹뷰를 실행시킨다.
         webSettings.setSupportMultipleWindows(true);
+
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                return false;
+            }
+        });
 
         webView.setWebChromeClient(new WebChromeClient() {
             public void onProgressChanged(WebView view, int progress) {
