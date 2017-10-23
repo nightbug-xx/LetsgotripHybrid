@@ -37,7 +37,8 @@
         <activity
             android:name=".PopupActivity"
             android:configChanges="keyboardHidden|orientation"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
