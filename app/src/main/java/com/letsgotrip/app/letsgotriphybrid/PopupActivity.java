@@ -161,8 +161,16 @@ public class PopupActivity extends AppCompatActivity {
                 if(url.contains("/member/join.do")){;
                     intent.putExtra("navi",false);
                     intent.putExtra("title","회원가입");
+                }else if(url.contains("/member/login.do")){
+                    intent.putExtra("navi",false);
+                    intent.putExtra("title","로그인");
+                }else if(url.contains("/navi.do")){
+                    intent.putExtra("navi",false);
+                    intent.putExtra("title","길찾기");
+                }else if(url.contains("/eventDetail.do")){
+                    intent.putExtra("navi",true);
+                    intent.putExtra("title","상세보기");
                 }
-
                 intent.putExtra("url",url);
                 startActivity(intent);
 
