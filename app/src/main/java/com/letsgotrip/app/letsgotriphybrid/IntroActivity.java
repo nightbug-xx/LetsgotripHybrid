@@ -2,17 +2,24 @@ package com.letsgotrip.app.letsgotriphybrid;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.view.View;
 import android.view.Window;
+import android.widget.Toast;
+
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 import static android.view.View.SYSTEM_UI_FLAG_FULLSCREEN;
 import static android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
@@ -29,6 +36,11 @@ public class IntroActivity extends Activity {
 
     double latitude;
     double longitude;
+
+    public static final String WIFE_STATE = "WIFE";
+    public static final String MOBILE_STATE = "MOBILE";
+    public static final String NONE_STATE = "NONE";
+    public static final String CONNECTION_CONFIRM_CLIENT_URL = "http://clients3.google.com/generate_204";
 
     Runnable runnable = new Runnable() {
         @Override
@@ -56,8 +68,16 @@ public class IntroActivity extends Activity {
             uiOption |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
 
         decorView.setSystemUiVisibility( uiOption );
-        init();
-        getMyLocation();
+
+        if(isOnline()){
+            init();
+            getMyLocation();
+        }else{
+            Toast.makeText(IntroActivity.this, "인터넷연결이 필요합니다.", Toast.LENGTH_LONG).show();
+            Intent intent = new Intent(android.provider.Settings.ACTION_WIFI_SETTINGS);
+            startActivityForResult(intent, 0);
+            finish();
+        }
 
 //        handler.postDelayed(runnable, 1000);
     }
@@ -106,5 +126,64 @@ public class IntroActivity extends Activity {
 
             }
         }
+    }
+
+    public static String getWhatKindOfNetwork(Context context){
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        if (activeNetwork != null) {
+            if (activeNetwork.getType() == ConnectivityManager.TYPE_WIFI) {
+                return WIFE_STATE;
+            } else if (activeNetwork.getType() == ConnectivityManager.TYPE_MOBILE) {
+                return MOBILE_STATE;
+            }
+        }
+        return NONE_STATE;
+    }
+    private static class CheckConnect extends Thread{
+        private boolean success;
+        private String host;
+
+        public CheckConnect(String host){
+            this.host = host;
+        }
+
+        @Override
+        public void run() {
+
+            HttpURLConnection conn = null;
+            try {
+                conn = (HttpURLConnection)new URL(host).openConnection();
+                conn.setRequestProperty("User-Agent","Android");
+                conn.setConnectTimeout(1000);
+                conn.connect();
+                int responseCode = conn.getResponseCode();
+                if(responseCode == 204) success = true;
+                else success = false;
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+                success = false;
+            }
+            if(conn != null){
+                conn.disconnect();
+            }
+        }
+
+        public boolean isSuccess(){
+            return success;
+        }
+
+    }
+    public static boolean isOnline() {
+        CheckConnect cc = new CheckConnect(CONNECTION_CONFIRM_CLIENT_URL);
+        cc.start();
+        try{
+            cc.join();
+            return cc.isSuccess();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return false;
     }
 }
