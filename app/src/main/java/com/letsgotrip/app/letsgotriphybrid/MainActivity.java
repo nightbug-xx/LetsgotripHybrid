@@ -32,8 +32,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int MY_PERMISSION_REQUEST_LOCATION = 0;
     public WebView webView;
 
-    public String urlStr = "http://app.letsgotrip.com/";
-//    public static String urlStr = "http://121.128.165.42:8080/";
+//    public String urlStr = "http://app.letsgotrip.com/";
+    public static String urlStr = "http://121.128.165.42:8080/";
 
     // 사용자 위치 수신기
     private LocationManager locationManager;

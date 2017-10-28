@@ -85,12 +85,12 @@ public class PopupActivity extends AppCompatActivity {
                     new Button.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-//                        Intent intent = new Intent(EventDetailActivity.this, DetailNaviActivity.class);
-//                        intent.putExtra("s_name",s_name);
-//                        intent.putExtra("sidx",sidx);
-//                        intent.putExtra("cidx",cidx);
-//                        intent.putExtra("s_type",s_type);
-//                        startActivity(intent);
+                            String dnUrl = urlStr.replace("eventDetail", "navi2");
+                        Intent intent=new Intent(PopupActivity.this,Popup2Activity.class);
+                            intent.putExtra("navi",false);
+                            intent.putExtra("title","길찾기");
+                            intent.putExtra("url",dnUrl);
+                        startActivity(intent);
                         }
                     }
             );
@@ -158,6 +158,10 @@ public class PopupActivity extends AppCompatActivity {
                 String url = result.getExtra();
 
                 Intent intent=new Intent(PopupActivity.this,Popup2Activity.class);
+                if(url == null){
+                    url = "http://app.letsgotrip.com/member/login.do";
+                }
+
                 if(url.contains("/member/join.do")){;
                     intent.putExtra("navi",false);
                     intent.putExtra("title","회원가입");
