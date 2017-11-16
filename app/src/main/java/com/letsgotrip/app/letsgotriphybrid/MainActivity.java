@@ -126,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
         mWebViewInterface = new WebViewInterface(MainActivity.this, webView); //JavascriptInterface 객체화
         webView.addJavascriptInterface(mWebViewInterface, "Android"); //웹뷰에 JavascriptInterface를 연결
 
-        webView.loadUrl(urlStr+"main.do");
+        webView.loadUrl(urlStr+"main3.do");
 
 
     }
