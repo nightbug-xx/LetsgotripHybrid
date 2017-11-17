@@ -14,12 +14,14 @@ import android.os.Message;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import static android.view.View.SYSTEM_UI_FLAG_FULLSCREEN;
@@ -33,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
     public WebView webView;
 
     public String urlStr = "http://app.letsgotrip.com/";
-//    public static String urlStr = "http://121.128.165.42:8080/";
+//    public static String urlStr = "http://192.168.0.105:8080/";
 
     // 사용자 위치 수신기
     private LocationManager locationManager;
@@ -82,44 +84,38 @@ public class MainActivity extends AppCompatActivity {
 
         WebSettings webSettings = webView.getSettings();
         webView.getSettings().setJavaScriptEnabled(true); // 자바스크립트 사용을 허용한다.
-//        webView.setWebViewClient(new DraptWebViewClient());  // 새로운 창을 띄우지 않고 내부에서 웹뷰를 실행시킨다.
+        webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
         webSettings.setSupportMultipleWindows(true);
 
-        webView.setWebViewClient(new WebViewClient() {
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                return false;
-            }
-        });
+        webView.setWebViewClient(new WebViewClient() {});
 
         webView.setWebChromeClient(new WebChromeClient() {
-            public void onProgressChanged(WebView view, int progress) {
-//                Toast.makeText(MainActivity.this, "노딩중 : "+String.valueOf(progress), Toast.LENGTH_SHORT).show();
-//                super.onProgressChanged(view, progress);
-//                activity.setProgress(progress * 1000);
+            @Override
+            public void onCloseWindow(WebView window) {
+                super.onCloseWindow(window);
+                window.setVisibility(View.GONE);
+                webView.removeView(window);
             }
 
             @Override
             public boolean onCreateWindow(WebView view, boolean isDialog,boolean isUserGesture,Message resultMsg) {
-                WebView.HitTestResult result = view.getHitTestResult();
-                String url = result.getExtra();
+                webView.removeAllViews();
+                WebView newView = new WebView(view.getContext());
+                newView.setWebViewClient(new WebViewClient());
 
-                Intent intent=new Intent(MainActivity.this,PopupActivity.class);
-                if(url.contains("/member/login.do")){
-                    intent.putExtra("navi",false);
-                    intent.putExtra("title","로그인");
-                }else if(url.contains("/navi.do")){
-                    intent.putExtra("navi",false);
-                    intent.putExtra("title","길찾기");
-                }else if(url.contains("/eventDetail.do")){
-                    intent.putExtra("navi",true);
-                    intent.putExtra("title","상세보기");
-                }
+                final WebSettings settings = newView.getSettings();
+                settings.setJavaScriptEnabled(true);
+                newView.setWebChromeClient(this);
+                newView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
 
-                intent.putExtra("url",url);
-                startActivity(intent);
+                newView.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
-                return  false;
+                webView.addView(newView);
+
+                WebView.WebViewTransport transport = (WebView.WebViewTransport) resultMsg.obj;
+                transport.setWebView(newView);
+                resultMsg.sendToTarget();
+                return true;
             }
         });
 
