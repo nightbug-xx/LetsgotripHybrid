@@ -34,8 +34,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int MY_PERMISSION_REQUEST_LOCATION = 0;
     public WebView webView;
 
-    public String urlStr = "http://app.letsgotrip.com/";
-//    public static String urlStr = "http://192.168.0.105:8080/";
+//    public String urlStr = "http://app.letsgotrip.com/";
+    public static String urlStr = "http://192.168.0.101:8080/";
 
     // 사용자 위치 수신기
     private LocationManager locationManager;
@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     double longitude;
 
     private WebViewInterface mWebViewInterface;
+    private WebViewInterface mWebViewInterface2;
 
     public static Context mContext;
 
@@ -68,12 +69,28 @@ public class MainActivity extends AppCompatActivity {
 
         decorView = getWindow().getDecorView();
         uiOption = getWindow().getDecorView().getSystemUiVisibility();
+
+
         if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH )
             uiOption |= SYSTEM_UI_FLAG_HIDE_NAVIGATION;
         if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN )
             uiOption |= SYSTEM_UI_FLAG_FULLSCREEN;
         if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT )
             uiOption |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+
+        decorView
+                .setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener()
+                {
+
+                    @Override
+                    public void onSystemUiVisibilityChange(int visibility)
+                    {
+                        if((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0)
+                        {
+                            decorView.setSystemUiVisibility(uiOption);
+                        }
+                    }
+                });
 
         decorView.setSystemUiVisibility( uiOption );
 
@@ -103,14 +120,18 @@ public class MainActivity extends AppCompatActivity {
                 WebView newView = new WebView(view.getContext());
                 newView.setWebViewClient(new WebViewClient());
 
-                final WebSettings settings = newView.getSettings();
+                WebSettings settings = newView.getSettings();
                 settings.setJavaScriptEnabled(true);
                 newView.setWebChromeClient(this);
-                newView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
+//                newView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
 
                 newView.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
+                mWebViewInterface2 = new WebViewInterface(MainActivity.this, newView); //JavascriptInterface 객체화
+                newView.addJavascriptInterface(mWebViewInterface2, "Android"); //웹뷰에 JavascriptInterface를 연결
+
                 webView.addView(newView);
+                decorView.setSystemUiVisibility( uiOption );
 
                 WebView.WebViewTransport transport = (WebView.WebViewTransport) resultMsg.obj;
                 transport.setWebView(newView);
@@ -126,6 +147,15 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+//    @Override
+//    public boolean onKeyDown(int keyCode, KeyEvent event){
+//        if((keyCode == KeyEvent.KEYCODE_BACK) && webView.canGoBack()){
+//            webView.goBack();
+//            return true;
+//        }
+//        return super.onKeyDown(keyCode, event);
+//    }
 
 
 
