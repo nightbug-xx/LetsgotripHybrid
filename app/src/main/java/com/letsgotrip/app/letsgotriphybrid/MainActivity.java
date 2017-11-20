@@ -34,15 +34,15 @@ public class MainActivity extends AppCompatActivity {
     private static final int MY_PERMISSION_REQUEST_LOCATION = 0;
     public WebView webView;
 
-//    public String urlStr = "http://app.letsgotrip.com/";
-    public static String urlStr = "http://192.168.0.101:8080/";
+    public String urlStr = "http://app.letsgotrip.com/";
+//    public static String urlStr = "http://192.168.0.101:8080/";
 
     // 사용자 위치 수신기
     private LocationManager locationManager;
     private LocationListener locationListener;
 
     double latitude;
-    double longitude;
+    double longitude;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
     private WebViewInterface mWebViewInterface;
     private WebViewInterface mWebViewInterface2;
