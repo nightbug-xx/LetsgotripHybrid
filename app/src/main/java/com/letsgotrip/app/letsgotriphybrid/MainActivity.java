@@ -42,12 +42,17 @@ public class MainActivity extends AppCompatActivity {
     private LocationListener locationListener;
 
     double latitude;
-    double longitude;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    double longitude;
 
     private WebViewInterface mWebViewInterface;
     private WebViewInterface mWebViewInterface2;
 
     public static Context mContext;
+
+    private final long FINISH_INTERVAL_TIME = 2000;
+    private long   backPressedTime = 0;
+
+    WebView newView = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,12 +117,13 @@ public class MainActivity extends AppCompatActivity {
                 super.onCloseWindow(window);
                 window.setVisibility(View.GONE);
                 webView.removeView(window);
+                newView = null;
             }
 
             @Override
             public boolean onCreateWindow(WebView view, boolean isDialog,boolean isUserGesture,Message resultMsg) {
                 webView.removeAllViews();
-                WebView newView = new WebView(view.getContext());
+                newView = new WebView(view.getContext());
                 newView.setWebViewClient(new WebViewClient());
 
                 WebSettings settings = newView.getSettings();
@@ -304,4 +310,25 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    @Override
+    public void onBackPressed() {
+        long tempTime        = System.currentTimeMillis();
+        long intervalTime    = tempTime - backPressedTime;
+
+        if(webView.canGoBack()){
+            webView.goBack();
+        }else if(newView!=null){
+            webView.removeView(newView);
+            newView = null;
+        }
+        else if (0 <= intervalTime && FINISH_INTERVAL_TIME >= intervalTime)
+        {
+            super.onBackPressed();
+        }
+        else
+        {
+            backPressedTime = tempTime;
+            Toast.makeText(getApplicationContext(), "한번더 누르시면 종료됩니다.", Toast.LENGTH_SHORT).show();
+        }
+    }
 }
