@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "461480090621",
+    "firebase_url": "https://letsgotrip-fb4f7.firebaseio.com",
+    "project_id": "letsgotrip-fb4f7",
+    "storage_bucket": "letsgotrip-fb4f7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:461480090621:android:a14adba10dedb650",
+        "android_client_info": {
+          "package_name": "com.letsgotrip.app.letsgotriphybrid"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "461480090621-7pqoirn8jk9j20fk105isrnat0sbj8nb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.letsgotrip.app.letsgotriphybrid",
+            "certificate_hash": "0feec341bebafb0aaacb6fd35db6d0c17d2ba9a6"
+          }
+        },
+        {
+          "client_id": "461480090621-8034e8o0avtvl9af3qk25updtjkph1fg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCjVrcpgnIEADWgwyYkMzyI-ibesHlVY_o"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "461480090621-8034e8o0avtvl9af3qk25updtjkph1fg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
