@@ -64,7 +64,7 @@ public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
 // TODO: Implement this method to send token to your app server.
         OkHttpClient client = new OkHttpClient();
         RequestBody body = new FormBody.Builder().add("Token", token).build();
-        Request request = new Request.Builder().url("http://yourserver.com/fcm/register_token.php").post(body).build();
+        Request request = new Request.Builder().url("http://app.letsgotrip.com/addDevice.do?token="+token).post(body).build();
         try {
             client.newCall(request).execute();
         } catch (IOException e) {

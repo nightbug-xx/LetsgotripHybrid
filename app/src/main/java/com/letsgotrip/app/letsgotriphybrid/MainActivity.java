@@ -24,6 +24,8 @@ import android.webkit.WebViewClient;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.google.firebase.iid.FirebaseInstanceId;
+
 import static android.view.View.SYSTEM_UI_FLAG_FULLSCREEN;
 import static android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
 
@@ -35,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
     public WebView webView;
 
     public String urlStr = "http://app.letsgotrip.com/";
-//    public static String urlStr = "http://192.168.0.101:8080/";
+//    public static String urlStr = "http://192.168.0.100:8080/";
 
     // 사용자 위치 수신기
     private LocationManager locationManager;
@@ -299,6 +301,15 @@ public class MainActivity extends AppCompatActivity {
         @JavascriptInterface
         public String getLocation () { // Show toast for a short time
             return "{\"lat\":"+String.valueOf(latitude)+",\"lng\":"+String.valueOf(longitude)+"}";
+        }
+
+        /**
+         * 현재 GPS정보를 가져온다.
+         */
+        @JavascriptInterface
+        public String getToken () {
+            String refreshedToken = FirebaseInstanceId.getInstance().getToken();
+            return refreshedToken;
         }
 
 
