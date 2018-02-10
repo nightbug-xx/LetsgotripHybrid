@@ -8,20 +8,25 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
+import android.net.http.SslError;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.webkit.CookieManager;
 import android.webkit.JavascriptInterface;
+import android.webkit.SslErrorHandler;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.RelativeLayout;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -36,8 +41,11 @@ public class MainActivity extends AppCompatActivity {
     private static final int MY_PERMISSION_REQUEST_LOCATION = 0;
     public WebView webView;
 
-    public String urlStr = "http://app.letsgotrip.com/";
+    public String urlStr = "http://app.letsgotrip.com";
 //    public static String urlStr = "http://192.168.0.100:8080/";
+    private static final String target_url_prefix="app.letsgotrip.com";
+    private WebView mWebviewPop;
+    private FrameLayout mContainer;
 
     // 사용자 위치 수신기
     private LocationManager locationManager;
@@ -55,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
     private long   backPressedTime = 0;
 
     WebView newView = null;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,51 +116,172 @@ public class MainActivity extends AppCompatActivity {
         webView.clearCache(true);
 
         WebSettings webSettings = webView.getSettings();
+
+        //2018-02-06 00:3
+        CookieManager cookieManager = CookieManager.getInstance();
+        cookieManager.setAcceptCookie(true);
+        webSettings.setAppCacheEnabled(true);
+        //
+
         webView.getSettings().setJavaScriptEnabled(true); // 자바스크립트 사용을 허용한다.
         webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
         webSettings.setSupportMultipleWindows(true);
 
-        webView.setWebViewClient(new WebViewClient() {});
-
-        webView.setWebChromeClient(new WebChromeClient() {
+        webView.setWebViewClient(new WebViewClient() {
+            //2018-02-06 00:3
             @Override
-            public void onCloseWindow(WebView window) {
-                super.onCloseWindow(window);
-                window.setVisibility(View.GONE);
-                webView.removeView(window);
-                newView = null;
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                String host = Uri.parse(url).getHost();
+                //Log.d("shouldOverrideUrlLoading", url);
+                if (host.equals(target_url_prefix))
+                {
+                    // This is my web site, so do not override; let my WebView load
+                    // the page
+                    if(mWebviewPop!=null)
+                    {
+                        mWebviewPop.setVisibility(View.GONE);
+                        mContainer.removeView(mWebviewPop);
+                        mWebviewPop=null;
+                    }
+                    return false;
+                }
+
+                if(host.equals("m.facebook.com")|| host.equals("www.facebook.com"))
+                {
+                    return false;
+                }
+                // Otherwise, the link is not for a page on my site, so launch
+                // another Activity that handles URLs
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                startActivity(intent);
+                return true;
             }
 
             @Override
-            public boolean onCreateWindow(WebView view, boolean isDialog,boolean isUserGesture,Message resultMsg) {
-                webView.removeAllViews();
-                newView = new WebView(view.getContext());
-                newView.setWebViewClient(new WebViewClient());
+            public void onReceivedSslError(WebView view, SslErrorHandler handler,
+                                           SslError error) {
+                Log.d("onReceivedSslError", "onReceivedSslError");
+                //super.onReceivedSslError(view, handler, error);
+            }
 
-                WebSettings settings = newView.getSettings();
-                settings.setJavaScriptEnabled(true);
-                newView.setWebChromeClient(this);
-//                newView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                // First, get the URL that Facebook's login button is actually redirecting you to.
+                // It should be something simulator to https://www.facebook.com/dialog/return/arbiter?relation=opener&close=true
+                String webUrl = webView.getUrl();
+                // Pass it to the LogCat so that you can then use it in the if statement below.
 
-                newView.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+                if (url.startsWith(urlStr)) {
+                    // Check whether the current URL is the URL that Facebook's redirecting you to.
+                    // If it is - that's it - do what you want to after the logging process has finished.
+                    return;
+                }
 
-                mWebViewInterface2 = new WebViewInterface(MainActivity.this, newView); //JavascriptInterface 객체화
-                newView.addJavascriptInterface(mWebViewInterface2, "Android"); //웹뷰에 JavascriptInterface를 연결
+                super.onPageFinished(view, url);
+            }
+            //
+        });
 
-                webView.addView(newView);
-                decorView.setSystemUiVisibility( uiOption );
+        webView.setWebChromeClient(new WebChromeClient() {
+            //2018-02-06 00:3
+//            @Override
+//            public void onCloseWindow(WebView window) {
+//                super.onCloseWindow(window);
+//                window.setVisibility(View.GONE);
+//                webView.removeView(window);
+//                newView = null;
+//            }
+//
+//            @Override
+//            public boolean onCreateWindow(WebView view, boolean isDialog,boolean isUserGesture,Message resultMsg) {
+//                webView.removeAllViews();
+//                newView = new WebView(view.getContext());
+//                newView.setWebViewClient(new WebViewClient());
+//
+//                WebSettings settings = newView.getSettings();
+//                settings.setJavaScriptEnabled(true);
+//                newView.setWebChromeClient(this);
+////                newView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
+//
+//                newView.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+//
+//                mWebViewInterface2 = new WebViewInterface(MainActivity.this, newView); //JavascriptInterface 객체화
+//                newView.addJavascriptInterface(mWebViewInterface2, "Android"); //웹뷰에 JavascriptInterface를 연결
+//
+//                webView.addView(newView);
+//                decorView.setSystemUiVisibility( uiOption );
+//
+//                WebView.WebViewTransport transport = (WebView.WebViewTransport) resultMsg.obj;
+//                transport.setWebView(newView);
+//                resultMsg.sendToTarget();
+//                return true;
+//            }
 
+            @Override
+            public boolean onCreateWindow(WebView view, boolean isDialog,
+                                          boolean isUserGesture, Message resultMsg) {
+                mWebviewPop = new WebView(view.getContext());
+                mWebviewPop.setVerticalScrollBarEnabled(false);
+                mWebviewPop.setHorizontalScrollBarEnabled(false);
+                mWebviewPop.setWebViewClient(new WebViewClient() {
+                    //2018-02-06 00:3
+                    @Override
+                    public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                        String host = Uri.parse(url).getHost();
+                        //Log.d("shouldOverrideUrlLoading", url);
+                        if (host.equals(target_url_prefix))
+                        {
+                            // This is my web site, so do not override; let my WebView load
+                            // the page
+                            if(mWebviewPop!=null)
+                            {
+                                mWebviewPop.setVisibility(View.GONE);
+                                webView.removeView(mWebviewPop);
+                                mWebviewPop=null;
+                            }
+                            return false;
+                        }
+
+                        if(host.equals("m.facebook.com"))
+                        {
+                            return false;
+                        }
+                        // Otherwise, the link is not for a page on my site, so launch
+                        // another Activity that handles URLs
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                        startActivity(intent);
+                        return true;
+                    }
+
+                    @Override
+                    public void onReceivedSslError(WebView view, SslErrorHandler handler,
+                                                   SslError error) {
+                        Log.d("onReceivedSslError", "onReceivedSslError");
+                        //super.onReceivedSslError(view, handler, error);
+                    }
+                    //
+                });
+                mWebviewPop.getSettings().setJavaScriptEnabled(true);
+                mWebviewPop.getSettings().setSavePassword(false);
+                mWebviewPop.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+                webView.addView(mWebviewPop);
                 WebView.WebViewTransport transport = (WebView.WebViewTransport) resultMsg.obj;
-                transport.setWebView(newView);
+                transport.setWebView(mWebviewPop);
                 resultMsg.sendToTarget();
+
                 return true;
+            }
+
+            @Override
+            public void onCloseWindow(WebView window) {
+                Log.d("onCloseWindow", "called");
             }
         });
 
         mWebViewInterface = new WebViewInterface(MainActivity.this, webView); //JavascriptInterface 객체화
         webView.addJavascriptInterface(mWebViewInterface, "Android"); //웹뷰에 JavascriptInterface를 연결
 
-        webView.loadUrl(urlStr+"main3.do");
+        webView.loadUrl(urlStr+"/main3.do");
 
 
     }
@@ -193,8 +323,13 @@ public class MainActivity extends AppCompatActivity {
             }else{
                 String networkProvider = LocationManager.NETWORK_PROVIDER;
                 currentLocation = locationManager.getLastKnownLocation(networkProvider);
-                double lng = currentLocation.getLongitude();
-                double lat = currentLocation.getLatitude();
+                if(currentLocation==null){
+                    double lng = 106.707018;
+                    double lat = 10.731659;
+                }else{
+                    double lng = currentLocation.getLongitude();
+                    double lat = currentLocation.getLatitude();
+                }
             }
         }
 
@@ -303,13 +438,88 @@ public class MainActivity extends AppCompatActivity {
             return "{\"lat\":"+String.valueOf(latitude)+",\"lng\":"+String.valueOf(longitude)+"}";
         }
 
-        /**
-         * 현재 GPS정보를 가져온다.
-         */
         @JavascriptInterface
         public String getToken () {
             String refreshedToken = FirebaseInstanceId.getInstance().getToken();
             return refreshedToken;
+        }
+
+        @JavascriptInterface
+        public String getFacebook () {
+//            FacebookSdk.sdkInitialize(getApplicationContext());
+//            CallbackManager callbackManager = CallbackManager.Factory.create();
+//            //LoginManager - 요청된 읽기 또는 게시 권한으로 로그인 절차를 시작합니다.
+//            LoginManager.getInstance().logInWithReadPermissions(MainActivity.this,Arrays.asList("public_profile","email"));
+//            LoginManager.getInstance().registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+//                        @Override
+//                        public void onSuccess(LoginResult loginResult) { //로그인 성공시 호출되는 메소드
+//                            //loginResult.getAccessToken() 정보를 가지고 유저 정보를 가져올수 있습니다.
+//                            GraphRequest request = GraphRequest.newMeRequest(loginResult.getAccessToken() ,
+//                                    new GraphRequest.GraphJSONObjectCallback() {
+//                                        @Override
+//                                        public void onCompleted(JSONObject object, GraphResponse response) {
+//                                            try {
+//                                                Log.e("user profile",object.toString());
+////                                                sendRequestSNS("facebookLoginCheck",object,"F");
+//                                            } catch (Exception e) {
+//                                                e.printStackTrace();
+//                                            }
+//                                        }
+//                                    });
+//                            Bundle parameters = new Bundle();
+//                            parameters.putString("fields", "id,name,email");
+//                            request.setParameters(parameters);
+//                            request.executeAsync();
+//                        }
+//
+//                        @Override
+//                        public void onCancel() {
+//                            Log.e("onCancel", "onCancel");
+//                        }
+//
+//                        @Override
+//                        public void onError(FacebookException exception) {
+//                            Log.e("onError", "onError " + exception.getLocalizedMessage());
+//                        }
+//                    });
+            return null;
+        }
+
+        @JavascriptInterface
+        public String getGoogle () {
+//            @OnClick(R.id.google_signin_button)
+//            void googleSignIn(){
+//                Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
+//                startActivityForResult(signInIntent,RC_SIGN_IN);
+//            }
+//
+//            @Override
+//            protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+//                super.onActivityResult(requestCode, resultCode, data);
+//                callbackManager.onActivityResult(requestCode, resultCode, data);
+//                if(requestCode==RC_SIGN_IN){
+//                    GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+//
+//                    if(result.isSuccess()){
+//                        GoogleSignInAccount account = result.getSignInAccount();
+//                        firebaseAuthWithGoogle(account);
+//                        JSONObject gresult = new JSONObject();
+//                        try {
+//                            gresult.put("email",result.getSignInAccount().getEmail());
+//                            gresult.put("id",result.getSignInAccount().getId());
+//                            gresult.put("name",result.getSignInAccount().getDisplayName());
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                        }
+//                        sendRequestSNS("facebookLoginCheck",gresult,"G");
+//
+////                Toast.makeText(this, "Login signed in success", Toast.LENGTH_LONG).show();
+//                    }
+//                }else{
+////            Toast.makeText(LoginActivity.this, "Login signed in failed", Toast.LENGTH_LONG).show();
+//                }
+//            }
+            return null;
         }
 
 
