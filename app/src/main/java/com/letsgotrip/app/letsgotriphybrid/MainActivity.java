@@ -27,6 +27,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -44,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     public String urlStr = "http://app.letsgotrip.com";
 //    public static String urlStr = "http://192.168.0.100:8080/";
     private static final String target_url_prefix="app.letsgotrip.com";
+//    private static final String target_url_prefix="192.168.0.100:8080";
     private WebView mWebviewPop;
     private FrameLayout mContainer;
 
@@ -132,16 +134,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 String host = Uri.parse(url).getHost();
-                //Log.d("shouldOverrideUrlLoading", url);
+                Log.d("shouldOverrideUrl", url);
                 if (host.equals(target_url_prefix))
                 {
                     // This is my web site, so do not override; let my WebView load
                     // the page
-                    if(mWebviewPop!=null)
+                    if(newView!=null)
                     {
-                        mWebviewPop.setVisibility(View.GONE);
-                        mContainer.removeView(mWebviewPop);
-                        mWebviewPop=null;
+                        newView.setVisibility(View.GONE);
+                        mContainer.removeView(newView);
+                        newView=null;
                     }
                     return false;
                 }
@@ -184,97 +186,37 @@ public class MainActivity extends AppCompatActivity {
 
         webView.setWebChromeClient(new WebChromeClient() {
             //2018-02-06 00:3
-//            @Override
-//            public void onCloseWindow(WebView window) {
-//                super.onCloseWindow(window);
-//                window.setVisibility(View.GONE);
-//                webView.removeView(window);
-//                newView = null;
-//            }
-//
-//            @Override
-//            public boolean onCreateWindow(WebView view, boolean isDialog,boolean isUserGesture,Message resultMsg) {
-//                webView.removeAllViews();
-//                newView = new WebView(view.getContext());
-//                newView.setWebViewClient(new WebViewClient());
-//
-//                WebSettings settings = newView.getSettings();
-//                settings.setJavaScriptEnabled(true);
-//                newView.setWebChromeClient(this);
-////                newView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
-//
-//                newView.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-//
-//                mWebViewInterface2 = new WebViewInterface(MainActivity.this, newView); //JavascriptInterface 객체화
-//                newView.addJavascriptInterface(mWebViewInterface2, "Android"); //웹뷰에 JavascriptInterface를 연결
-//
-//                webView.addView(newView);
-//                decorView.setSystemUiVisibility( uiOption );
-//
-//                WebView.WebViewTransport transport = (WebView.WebViewTransport) resultMsg.obj;
-//                transport.setWebView(newView);
-//                resultMsg.sendToTarget();
-//                return true;
-//            }
-
             @Override
-            public boolean onCreateWindow(WebView view, boolean isDialog,
-                                          boolean isUserGesture, Message resultMsg) {
-                mWebviewPop = new WebView(view.getContext());
-                mWebviewPop.setVerticalScrollBarEnabled(false);
-                mWebviewPop.setHorizontalScrollBarEnabled(false);
-                mWebviewPop.setWebViewClient(new WebViewClient() {
-                    //2018-02-06 00:3
-                    @Override
-                    public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                        String host = Uri.parse(url).getHost();
-                        //Log.d("shouldOverrideUrlLoading", url);
-                        if (host.equals(target_url_prefix))
-                        {
-                            // This is my web site, so do not override; let my WebView load
-                            // the page
-                            if(mWebviewPop!=null)
-                            {
-                                mWebviewPop.setVisibility(View.GONE);
-                                webView.removeView(mWebviewPop);
-                                mWebviewPop=null;
-                            }
-                            return false;
-                        }
-
-                        if(host.equals("m.facebook.com"))
-                        {
-                            return false;
-                        }
-                        // Otherwise, the link is not for a page on my site, so launch
-                        // another Activity that handles URLs
-                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                        startActivity(intent);
-                        return true;
-                    }
-
-                    @Override
-                    public void onReceivedSslError(WebView view, SslErrorHandler handler,
-                                                   SslError error) {
-                        Log.d("onReceivedSslError", "onReceivedSslError");
-                        //super.onReceivedSslError(view, handler, error);
-                    }
-                    //
-                });
-                mWebviewPop.getSettings().setJavaScriptEnabled(true);
-                mWebviewPop.getSettings().setSavePassword(false);
-                mWebviewPop.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-                webView.addView(mWebviewPop);
-                WebView.WebViewTransport transport = (WebView.WebViewTransport) resultMsg.obj;
-                transport.setWebView(mWebviewPop);
-                resultMsg.sendToTarget();
-
-                return true;
+            public void onCloseWindow(WebView window) {
+                super.onCloseWindow(window);
+                window.setVisibility(View.GONE);
+                webView.removeView(window);
+                newView = null;
             }
 
             @Override
-            public void onCloseWindow(WebView window) {
-                Log.d("onCloseWindow", "called");
+            public boolean onCreateWindow(WebView view, boolean isDialog,boolean isUserGesture,Message resultMsg) {
+                webView.removeAllViews();
+                newView = new WebView(view.getContext());
+                newView.setWebViewClient(new WebViewClient());
+
+                WebSettings settings = newView.getSettings();
+                settings.setJavaScriptEnabled(true);
+                newView.setWebChromeClient(this);
+//                newView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
+
+                newView.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+                mWebViewInterface2 = new WebViewInterface(MainActivity.this, newView); //JavascriptInterface 객체화
+                newView.addJavascriptInterface(mWebViewInterface2, "Android"); //웹뷰에 JavascriptInterface를 연결
+
+                webView.addView(newView);
+                decorView.setSystemUiVisibility( uiOption );
+
+                WebView.WebViewTransport transport = (WebView.WebViewTransport) resultMsg.obj;
+                transport.setWebView(newView);
+                resultMsg.sendToTarget();
+                return true;
             }
         });
 
@@ -285,16 +227,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
-
-//    @Override
-//    public boolean onKeyDown(int keyCode, KeyEvent event){
-//        if((keyCode == KeyEvent.KEYCODE_BACK) && webView.canGoBack()){
-//            webView.goBack();
-//            return true;
-//        }
-//        return super.onKeyDown(keyCode, event);
-//    }
-
 
 
     /**
