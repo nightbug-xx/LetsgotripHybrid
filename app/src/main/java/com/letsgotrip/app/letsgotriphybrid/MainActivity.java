@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
     public WebView webView;
 
     public String urlStr = "http://app.letsgotrip.com";
-//    public static String urlStr = "http://192.168.0.100:8080/";
+//    public static String urlStr = "http://192.168.0.100:8080";
     private static final String target_url_prefix="app.letsgotrip.com";
 //    private static final String target_url_prefix="192.168.0.100:8080";
     private WebView mWebviewPop;
@@ -202,8 +202,10 @@ public class MainActivity extends AppCompatActivity {
 
                 WebSettings settings = newView.getSettings();
                 settings.setJavaScriptEnabled(true);
+                settings.setJavaScriptCanOpenWindowsAutomatically(true);
+                settings.setSupportMultipleWindows(true);
+
                 newView.setWebChromeClient(this);
-//                newView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
 
                 newView.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
