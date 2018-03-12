@@ -13,6 +13,7 @@ import android.net.http.SslError;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -30,6 +31,20 @@ import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import static android.view.View.SYSTEM_UI_FLAG_FULLSCREEN;
@@ -66,6 +81,11 @@ public class MainActivity extends AppCompatActivity {
 
     WebView newView = null;
 
+    int RC_SIGN_IN = 666;
+
+    private FirebaseAuth mAuth;
+    private GoogleSignInClient mGoogleSignInClient;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +95,18 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         settingGPS();
+
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+
+        // [START initialize_auth]
+        mAuth = FirebaseAuth.getInstance();
+        // [END initialize_auth]
+
 
         // 사용자의 현재 위치 //
         Location userLocation = getMyLocation();
@@ -120,9 +152,11 @@ public class MainActivity extends AppCompatActivity {
         WebSettings webSettings = webView.getSettings();
 
         //2018-02-06 00:3
+        webView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+
         CookieManager cookieManager = CookieManager.getInstance();
         cookieManager.setAcceptCookie(true);
-        webSettings.setAppCacheEnabled(true);
+        cookieManager.setAcceptThirdPartyCookies(webView, true);
         //
 
         webView.getSettings().setJavaScriptEnabled(true); // 자바스크립트 사용을 허용한다.
@@ -134,6 +168,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 String host = Uri.parse(url).getHost();
+                Log.d("shouldOverrideUrl", "111111111111");
                 Log.d("shouldOverrideUrl", url);
                 if (host.equals(target_url_prefix))
                 {
@@ -148,10 +183,11 @@ public class MainActivity extends AppCompatActivity {
                     return false;
                 }
 
-                if(host.equals("m.facebook.com")|| host.equals("www.facebook.com"))
-                {
-                    return false;
-                }
+//                if(host.equals("m.facebook.com")|| host.equals("www.facebook.com")||host.contains("firebase")||host.contains("google")||host.contains("blank"))
+//                if(!host.startsWith("app.letsgotrip.com"))
+//                {
+//                    return false;
+//                }
                 // Otherwise, the link is not for a page on my site, so launch
                 // another Activity that handles URLs
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
@@ -210,7 +246,7 @@ public class MainActivity extends AppCompatActivity {
                 newView.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
                 mWebViewInterface2 = new WebViewInterface(MainActivity.this, newView); //JavascriptInterface 객체화
-                newView.addJavascriptInterface(mWebViewInterface2, "Android"); //웹뷰에 JavascriptInterface를 연결
+                newView.addJavascriptInterface(mWebViewInterface2, "Android2"); //웹뷰에 JavascriptInterface를 연결
 
                 webView.addView(newView);
                 decorView.setSystemUiVisibility( uiOption );
@@ -368,7 +404,7 @@ public class MainActivity extends AppCompatActivity {
          * 현재 GPS정보를 가져온다.
          */
         @JavascriptInterface
-        public String getLocation () { // Show toast for a short time
+        public String getLocation () {
             return "{\"lat\":"+String.valueOf(latitude)+",\"lng\":"+String.valueOf(longitude)+"}";
         }
 
@@ -379,85 +415,87 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @JavascriptInterface
-        public String getFacebook () {
-//            FacebookSdk.sdkInitialize(getApplicationContext());
-//            CallbackManager callbackManager = CallbackManager.Factory.create();
-//            //LoginManager - 요청된 읽기 또는 게시 권한으로 로그인 절차를 시작합니다.
-//            LoginManager.getInstance().logInWithReadPermissions(MainActivity.this,Arrays.asList("public_profile","email"));
-//            LoginManager.getInstance().registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
-//                        @Override
-//                        public void onSuccess(LoginResult loginResult) { //로그인 성공시 호출되는 메소드
-//                            //loginResult.getAccessToken() 정보를 가지고 유저 정보를 가져올수 있습니다.
-//                            GraphRequest request = GraphRequest.newMeRequest(loginResult.getAccessToken() ,
-//                                    new GraphRequest.GraphJSONObjectCallback() {
-//                                        @Override
-//                                        public void onCompleted(JSONObject object, GraphResponse response) {
-//                                            try {
-//                                                Log.e("user profile",object.toString());
-////                                                sendRequestSNS("facebookLoginCheck",object,"F");
-//                                            } catch (Exception e) {
-//                                                e.printStackTrace();
-//                                            }
-//                                        }
-//                                    });
-//                            Bundle parameters = new Bundle();
-//                            parameters.putString("fields", "id,name,email");
-//                            request.setParameters(parameters);
-//                            request.executeAsync();
-//                        }
-//
-//                        @Override
-//                        public void onCancel() {
-//                            Log.e("onCancel", "onCancel");
-//                        }
-//
-//                        @Override
-//                        public void onError(FacebookException exception) {
-//                            Log.e("onError", "onError " + exception.getLocalizedMessage());
-//                        }
-//                    });
-            return null;
-        }
-
-        @JavascriptInterface
         public String getGoogle () {
-//            @OnClick(R.id.google_signin_button)
-//            void googleSignIn(){
-//                Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
-//                startActivityForResult(signInIntent,RC_SIGN_IN);
-//            }
-//
-//            @Override
-//            protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//                super.onActivityResult(requestCode, resultCode, data);
-//                callbackManager.onActivityResult(requestCode, resultCode, data);
-//                if(requestCode==RC_SIGN_IN){
-//                    GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-//
-//                    if(result.isSuccess()){
-//                        GoogleSignInAccount account = result.getSignInAccount();
-//                        firebaseAuthWithGoogle(account);
-//                        JSONObject gresult = new JSONObject();
-//                        try {
-//                            gresult.put("email",result.getSignInAccount().getEmail());
-//                            gresult.put("id",result.getSignInAccount().getId());
-//                            gresult.put("name",result.getSignInAccount().getDisplayName());
-//                        } catch (JSONException e) {
-//                            e.printStackTrace();
-//                        }
-//                        sendRequestSNS("facebookLoginCheck",gresult,"G");
-//
-////                Toast.makeText(this, "Login signed in success", Toast.LENGTH_LONG).show();
-//                    }
-//                }else{
-////            Toast.makeText(LoginActivity.this, "Login signed in failed", Toast.LENGTH_LONG).show();
-//                }
-//            }
+            signIn();
             return null;
         }
 
 
     }
+
+    private void signIn() {
+        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        startActivityForResult(signInIntent, RC_SIGN_IN);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
+        if (requestCode == RC_SIGN_IN) {
+            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+            if (result.isSuccess()) {
+                // Google Sign In was successful, authenticate with Firebase
+                GoogleSignInAccount account = result.getSignInAccount();
+                firebaseAuthWithGoogle(account);
+            } else {
+                // Google Sign In failed, update UI appropriately
+                // ...
+            }
+        }
+    }
+
+    private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
+        Log.d("tag", "firebaseAuthWithGoogle:" + acct.getId());
+
+        AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            Log.d("tag", "signInWithCredential:success");
+                            FirebaseUser user = mAuth.getCurrentUser();
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            Log.w("tag", "signInWithCredential:failure", task.getException());
+                            Toast.makeText(MainActivity.this, "Authentication failed.",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+
+                        // ...
+                    }
+                });
+    }
+
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//        callbackManager.onActivityResult(requestCode, resultCode, data);
+//        if(requestCode==RC_SIGN_IN){
+//            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+//
+//            if(result.isSuccess()){
+//                GoogleSignInAccount account = result.getSignInAccount();
+//                firebaseAuthWithGoogle(account);
+//                JSONObject gresult = new JSONObject();
+//                try {
+//                    gresult.put("email",result.getSignInAccount().getEmail());
+//                    gresult.put("id",result.getSignInAccount().getId());
+//                    gresult.put("name",result.getSignInAccount().getDisplayName());
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+//                sendRequestSNS("facebookLoginCheck",gresult,"G");
+//
+////                Toast.makeText(this, "Login signed in success", Toast.LENGTH_LONG).show();
+//            }
+//        }else{
+////            Toast.makeText(LoginActivity.this, "Login signed in failed", Toast.LENGTH_LONG).show();
+//        }
+//    }
 
     public void refesh(){
         this.finish();
