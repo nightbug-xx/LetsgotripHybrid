@@ -168,8 +168,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 String host = Uri.parse(url).getHost();
-                Log.d("shouldOverrideUrl", "111111111111");
-                Log.d("shouldOverrideUrl", url);
                 if (host.equals(target_url_prefix))
                 {
                     // This is my web site, so do not override; let my WebView load
@@ -424,6 +422,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void signIn() {
+        FirebaseAuth.getInstance().signOut();
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
@@ -458,11 +457,11 @@ public class MainActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d("tag", "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
+                            webView.loadUrl(urlStr+"/member/ggLogin.do?pass="+user.getUid()+"&fname="+user.getDisplayName()+"&lname=&email="+user.getEmail());
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w("tag", "signInWithCredential:failure", task.getException());
-                            Toast.makeText(MainActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
                         }
 
                         // ...
