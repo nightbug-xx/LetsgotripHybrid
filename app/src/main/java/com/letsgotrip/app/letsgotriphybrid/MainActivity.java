@@ -4,7 +4,9 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -16,6 +18,7 @@ import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,6 +40,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -46,6 +50,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.iid.FirebaseInstanceId;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import static android.view.View.SYSTEM_UI_FLAG_FULLSCREEN;
 import static android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
@@ -413,32 +420,50 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @JavascriptInterface
-        public String getGoogle () {
-            signIn();
-            return null;
+        public void getGoogle () {
+            Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+            startActivityForResult(signInIntent, RC_SIGN_IN);
         }
 
 
     }
 
-    private void signIn() {
-        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-        startActivityForResult(signInIntent, RC_SIGN_IN);
-    }
+//    private void signIn() {
+//        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+//        startActivityForResult(signInIntent, RC_SIGN_IN);
+//    }
 
+//    @Override
+//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//        if (requestCode == RC_SIGN_IN) {
+//            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+//            if (result.isSuccess()) {
+//                GoogleSignInAccount account = result.getSignInAccount();
+//                firebaseAuthWithGoogle(account);
+//            } else {
+////                Toast.makeText(MainActivity.this, result.getStatus().toString(), Toast.LENGTH_LONG).show();
+//                keyCheck();
+//            }
+//        }
+//    }
+
+    // [START onactivityresult]
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d("11111111111","111111111111");
         if (requestCode == RC_SIGN_IN) {
-            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-            if (result.isSuccess()) {
-                GoogleSignInAccount account = result.getSignInAccount();
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            try {
+                GoogleSignInAccount account = task.getResult(ApiException.class);
                 firebaseAuthWithGoogle(account);
-            } else {
+            } catch (ApiException e) {
+//                Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                Log.w("Google sign in failed", "Google sign in failed", e);
             }
         }
     }
+    // [END onactivityresult]
 
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
         Log.d("tag", "firebaseAuthWithGoogle:" + acct.getId());
@@ -452,6 +477,7 @@ public class MainActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d("tag", "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
+                            Toast.makeText(MainActivity.this, "Authentication Success.", Toast.LENGTH_SHORT).show();
                             webView.loadUrl(urlStr+"/member/ggLogin.do?pass="+user.getUid()+"&fname="+user.getDisplayName()+"&lname=&email="+user.getEmail());
                         } else {
                             // If sign in fails, display a message to the user.
@@ -462,6 +488,27 @@ public class MainActivity extends AppCompatActivity {
                         // ...
                     }
                 });
+    }
+
+    public void keyCheck(){
+        PackageInfo packageInfo = null;
+        try {
+            packageInfo = getPackageManager().getPackageInfo(getPackageName(), PackageManager.GET_SIGNATURES);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        if (packageInfo == null)
+            Log.e("KeyHash", "KeyHash:null");
+
+        for (Signature signature : packageInfo.signatures) {
+            try {
+                MessageDigest md = MessageDigest.getInstance("SHA-1");
+                md.update(signature.toByteArray());
+                Toast.makeText(MainActivity.this, Base64.encodeToString(md.digest(), Base64.DEFAULT), Toast.LENGTH_LONG).show();
+            } catch (NoSuchAlgorithmException e) {
+                Log.e("KeyHash", "Unable to get MessageDigest. signature=" + signature, e);
+            }
+        }
     }
 
 //    @Override

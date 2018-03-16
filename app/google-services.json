@@ -15,11 +15,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "461480090621-7pqoirn8jk9j20fk105isrnat0sbj8nb.apps.googleusercontent.com",
+          "client_id": "461480090621-i69ijfo44v5cprtngec4b8v6skc4ku6l.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.letsgotrip.app.letsgotriphybrid",
-            "certificate_hash": "0feec341bebafb0aaacb6fd35db6d0c17d2ba9a6"
+            "certificate_hash": "dee701c8763daeabc77f45396438d3c8391fd765"
           }
         },
         {
