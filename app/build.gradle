@@ -15,8 +15,8 @@ android {
         applicationId "com.letsgotrip.app.letsgotriphybrid"
         minSdkVersion 15
         targetSdkVersion 26
-        versionCode 30
-        versionName "1.2.91"
+        versionCode 31
+        versionName "1.2.92"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
