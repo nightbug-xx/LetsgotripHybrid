@@ -15,6 +15,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "814529849638-n3lai5ivbrd931qs6g1gsqmoqp8fhkn7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.letsgotrip.app.letsgotriphybrid",
+            "certificate_hash": "b62c4bf583a94c481c24f2301e8c255816b4553a"
+          }
+        },
+        {
+          "client_id": "814529849638-vo88fjki4td7pec58tm0lvg8akf34vai.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.letsgotrip.app.letsgotriphybrid",
+            "certificate_hash": "0feec341bebafb0aaacb6fd35db6d0c17d2ba9a6"
+          }
+        },
+        {
           "client_id": "814529849638-rb1f2qovhmsrup12nuv7fu7ff7ng4dh9.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
